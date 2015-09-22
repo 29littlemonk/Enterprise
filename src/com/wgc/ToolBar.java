@@ -11,7 +11,7 @@ import javax.swing.border.EtchedBorder;
 
 public class ToolBar extends JToolBar{
 	
-	private MenuBar menubar = new MenuBar();
+	private MenuBar menubar;
 	public JButton createToolButton(final JMenuItem item) {
 		JButton button = new JButton();
 		button.setText(item.getText());
@@ -39,8 +39,9 @@ public class ToolBar extends JToolBar{
 		add(createToolButton(menubar.getSupplierDataManagementItem()));
 		add(createToolButton(menubar.getSystemExitItem()));
 	}
-	public ToolBar() {
+	public ToolBar(MenuBar menubar) {
 		// TODO Auto-generated constructor stub
+		this.menubar = menubar;
 		initialize();
 	}
 }

@@ -3,11 +3,22 @@ package com.wgc;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyVetoException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.ImageIcon;
+import javax.swing.JDesktopPane;
+import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+
+import com.wgc.iframe.JinHuoDan_IFrame;
 
 public class MenuBar extends JMenuBar {
 	private JMenu jinhuo_Menu = null;
@@ -41,7 +52,12 @@ public class MenuBar extends JMenuBar {
 	private JMenuItem aboutItem = null;
 	private JMenuItem contactTechSupportItem = null;
 	private JMenuItem visitTechWebsiteItem = null;
+	
+	private JDesktopPane desktopPanel = null;
+	private JLabel stateLabel = null;
+	private Map<JMenuItem,JInternalFrame> iFrames = null;
 
+	private int iFrameX,iFrameY;
 	public JMenu getJinhuo_Menu() {
 		if (jinhuo_Menu == null) {
 			jinhuo_Menu = new JMenu();
@@ -64,7 +80,7 @@ public class MenuBar extends JMenuBar {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					// TODO Auto-generated method stub
-
+					createJInternalFrame(jinhuoItem, JinHuoDan_IFrame.class);
 				}
 			});
 		}
@@ -540,8 +556,44 @@ public class MenuBar extends JMenuBar {
 		add(getHelpMenu());
 	}
 
-	public MenuBar() {
+	public JInternalFrame createJInternalFrame(JMenuItem item, Class cla) {
+		Constructor cons = cla.getConstructors()[0];
+		JInternalFrame iFrame = iFrames.get(item);
+		if(iFrame == null || iFrame.isClosed()) {
+			try {
+				iFrame = (JInternalFrame) cons.newInstance(new Object[] {});
+				iFrames.put(item, iFrame);
+				iFrame.setTitle(item.getText());
+				iFrame.setLocation(iFrameX, iFrameY);
+				iFrame.setFrameIcon(item.getIcon());
+				iFrame.setVisible(true);
+				iFrame.setSelected(true);
+				stateLabel.setText(iFrame.getTitle());
+				desktopPanel.add(iFrame);
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (PropertyVetoException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return iFrame;
+	}
+	public MenuBar(JDesktopPane desktopPanel, JLabel stateLabel) {
 		super();
+		iFrames = new HashMap<JMenuItem, JInternalFrame>();
+		this.desktopPanel = desktopPanel;
+		this.stateLabel = stateLabel;
 		initialize();
 	}
 }

@@ -18,6 +18,7 @@ public class MainFrame extends JFrame{
 	private JLabel dateLabel = null;
 	private JLabel companyLabel = null;
 	private JPanel statePanel = null;
+	private MenuBar menuBar = null;
 	
 	public DesktopPanel getDesktopPanel(){
 		if(desktopPanel == null) {
@@ -27,12 +28,18 @@ public class MainFrame extends JFrame{
 	}
 	public ToolBar getToolBar(){
 		if(toolBar == null) {
-			toolBar = new ToolBar();
+			toolBar = new ToolBar(getFrameMenuBar());
 			toolBar.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		}
 		return toolBar;
 	}
 	
+	public MenuBar getFrameMenuBar(){
+		if(menuBar == null) {
+			menuBar = new MenuBar(getDesktopPanel(),getStateLabel());
+		}
+		return menuBar;
+	}
 	public JPanel getStatePanel() {
 		companyLabel = new JLabel("大广泉村有限公司");
 		Date date = new Date();
@@ -139,7 +146,7 @@ public class MainFrame extends JFrame{
 	public void initialize() {
 		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		this.setBounds(200, 100, 800, 600);
-		this.setJMenuBar(new MenuBar());
+		this.setJMenuBar(getFrameMenuBar());
 		this.setContentPane(getFrameContentPanel());
 		this.setTitle("铭泰企业进销存管理系统");
 	}
