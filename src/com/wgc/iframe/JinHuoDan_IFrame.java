@@ -143,7 +143,7 @@ public class JinHuoDan_IFrame extends JInternalFrame {
 		tablemodel = new DefaultTableModel();
 		tablemodel.setColumnIdentifiers(columnNames);
 		table = new JTable(tablemodel);
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);//否则不会出现滚动面板
 		table.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		middlePanel.setViewportView(table);
 		return middlePanel;

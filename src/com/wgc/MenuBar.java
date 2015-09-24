@@ -19,6 +19,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 import com.wgc.iframe.JinHuoDan_IFrame;
+import com.wgc.iframe.SupplierManage_IFrame;
+import com.wgc.iframe.suppliermanage.SupplierAddPanel;
 
 public class MenuBar extends JMenuBar {
 	private JMenu jinhuo_Menu = null;
@@ -314,7 +316,7 @@ public class MenuBar extends JMenuBar {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					// TODO Auto-generated method stub
-
+					createJInternalFrame(supplierDataManagementItem, SupplierManage_IFrame.class);
 				}
 			});
 		}
