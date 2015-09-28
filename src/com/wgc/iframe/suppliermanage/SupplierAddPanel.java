@@ -1,20 +1,33 @@
 package com.wgc.iframe.suppliermanage;
 
 import javax.swing.JPanel;
+
 import java.awt.GridBagLayout;
+
 import javax.swing.JLabel;
+
 import java.awt.GridBagConstraints;
+import java.awt.HeadlessException;
 import java.awt.Insets;
+
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JButton;
+
+import com.wgc.dao.Dao;
+import com.wgc.dao.model.SupplierInfo;
+
 import java.awt.Font;
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class SupplierAddPanel extends JPanel {
 	private JTextField fullnameField;
 	private JTextField addressField;
 	private JTextField contactField;
-	private JTextField phoneField;
 	private JTextField telField;
 	private JTextField bankField;
 	private JTextField emailField;
@@ -49,7 +62,7 @@ public class SupplierAddPanel extends JPanel {
 		gbc_fullnameField.fill = GridBagConstraints.BOTH;
 		gbc_fullnameField.gridx = 1;
 		gbc_fullnameField.gridy = 0;
-		gbc_fullnameField.ipadx = 300;
+		gbc_fullnameField.ipadx = 310;
 		//gbc_fullnameField.ipady = 8;
 		add(fullnameField, gbc_fullnameField);
 		
@@ -179,6 +192,76 @@ public class SupplierAddPanel extends JPanel {
 		gbc_resetButton.gridx = 3;
 		gbc_resetButton.gridy = 4;
 		add(resetButton, gbc_resetButton);
+		
+		
+		addButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				if(fullnameField.getText().equals("") || addressField.getText().equals("") ||  contactField.getText().equals("") || telField.getText().equals("")
+						|| bankField.getText().equals("") || emailField.getText().equals("") || shortField.getText().equals("")) {
+					JOptionPane.showMessageDialog(SupplierAddPanel.this, "请填写全部信息",null,JOptionPane.WARNING_MESSAGE);
+					return;
+				}
+				ResultSet result = Dao.getResultSet("select * from tb_supplier where name = '" + fullnameField.getText().trim() +"' " );
+				try {
+					if(result.next()) {
+						JOptionPane.showMessageDialog(SupplierAddPanel.this, "此联系人已存在", null, JOptionPane.	WARNING_MESSAGE);
+						return;
+					}
+				} catch (HeadlessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				String sid = null;
+				result = Dao.getResultSet("select max(id) from tb_supplier ");//max可以的对字符串排序
+				
+				try {
+					//System.out.println(result.next());
+					if(result != null && result.next()) {
+						sid = "gys" + (Integer.parseInt(result.getString(1).substring(3)) + 1);
+					}else
+						sid = "gys1001";
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				SupplierInfo supplier = new SupplierInfo();
+				supplier.setId(sid);
+				supplier.setFullname(fullnameField.getText().trim());
+				supplier.setAddress(addressField.getText().trim());
+				supplier.setContact(contactField.getText().trim());
+				supplier.setPhone(telField.getText().trim());
+				supplier.setBank(bankField.getText().trim());
+				supplier.setEmail(emailField.getText().trim());
+				supplier.setShortname(shortField.getText().trim());
+				
+				if(Dao.addSupplier(supplier)) {
+					JOptionPane.showMessageDialog(SupplierAddPanel.this, "添加经销商成功", null, JOptionPane.INFORMATION_MESSAGE);
+					resetButton.doClick();
+				}
+				else
+					JOptionPane.showMessageDialog(SupplierAddPanel.this, "添加经销商失败", null, JOptionPane.WARNING_MESSAGE);
+			}
+		});
+		resetButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				fullnameField.setText("");
+				addressField.setText("");
+				contactField.setText("");
+				telField.setText("");
+				bankField.setText("");
+				emailField.setText("");
+				shortField.setText("");
+			}
+		});
 	}
 
 }

@@ -5,23 +5,34 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
+
+import com.wgc.dao.Dao;
+import com.wgc.dao.model.SupplierInfo;
 
 public class SupplierAlterPanel extends JPanel {
 	
 	private JTextField fullnameField;
 	private JTextField addressField;
 	private JTextField contactField;
-	private JTextField phoneField;
 	private JTextField telField;
 	private JTextField bankField;
 	private JTextField emailField;
 	private JTextField shortField;
+	private JComboBox comboBox;
 
 	/**
 	 * Create the panel.
@@ -51,7 +62,7 @@ public class SupplierAlterPanel extends JPanel {
 		gbc_fullnameField.fill = GridBagConstraints.BOTH;
 		gbc_fullnameField.gridx = 1;
 		gbc_fullnameField.gridy = 0;
-		gbc_fullnameField.ipadx = 300;
+		gbc_fullnameField.ipadx = 310;
 		//gbc_fullnameField.ipady = 8;
 		add(fullnameField, gbc_fullnameField);
 		
@@ -157,7 +168,7 @@ public class SupplierAlterPanel extends JPanel {
 		gbc_supplierLabel.gridy = 4;
 		add(supplierLabel, gbc_supplierLabel);
 		
-		JComboBox comboBox = new JComboBox();
+		comboBox = new JComboBox();
 		comboBox.setFont(new Font("宋体", Font.PLAIN, 14));
 		GridBagConstraints gbc_comboBox = new GridBagConstraints();
 		gbc_comboBox.gridwidth = 3;
@@ -185,21 +196,96 @@ public class SupplierAlterPanel extends JPanel {
 		gbc_shortField.gridy = 5;
 		add(shortField, gbc_shortField);
 		
-		JButton addButton = new JButton("\u4FEE\u6539");
-		addButton.setFont(new Font("宋体", Font.PLAIN, 14));
-		GridBagConstraints gbc_addButton = new GridBagConstraints();
-		gbc_addButton.insets = new Insets(5, 5, 5, 5);
-		gbc_addButton.gridx = 2;
-		gbc_addButton.gridy = 5;
-		add(addButton, gbc_addButton);
+		JButton alterButton = new JButton("\u4FEE\u6539");
+		alterButton.setFont(new Font("宋体", Font.PLAIN, 14));
+		GridBagConstraints gbc_alterButton = new GridBagConstraints();
+		gbc_alterButton.insets = new Insets(5, 5, 5, 5);
+		gbc_alterButton.gridx = 2;
+		gbc_alterButton.gridy = 5;
+		add(alterButton, gbc_alterButton);
 		
-		JButton resetButton = new JButton("\u5220\u9664");
-		resetButton.setFont(new Font("宋体", Font.PLAIN, 14));
-		GridBagConstraints gbc_resetButton = new GridBagConstraints();
-		gbc_resetButton.insets = new Insets(5, 5, 5, 5);
-		gbc_resetButton.gridx = 3;
-		gbc_resetButton.gridy = 5;
-		add(resetButton, gbc_resetButton);
+		JButton deleteButton = new JButton("\u5220\u9664");
+		deleteButton.setFont(new Font("宋体", Font.PLAIN, 14));
+		GridBagConstraints gbc_deleteButton = new GridBagConstraints();
+		gbc_deleteButton.insets = new Insets(5, 5, 5, 5);
+		gbc_deleteButton.gridx = 3;
+		gbc_deleteButton.gridy = 5;
+		add(deleteButton, gbc_deleteButton);		
+		
+		
+		initComboBox();
+		comboBox.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent arg0) {
+				// TODO Auto-generated method stub
+				setSupplierByName();
+			}
+		});
+		//setSupplierByName();//要放在各個field後面，否則field沒初始化，無法為field設置text。
+		alterButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				updateSupplier();
+			}
+		});
+		deleteButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				deleteSupplier();
+			}
+		});
 	}
-
+	public void initComboBox() {
+		comboBox.removeAllItems();
+		List<String> supplierName = Dao.getSupplierName();
+		Iterator<String> ite = supplierName.iterator();
+		while(ite.hasNext()) {
+			comboBox.addItem(ite.next());
+		}
+		setSupplierByName();
+	}
+	public void setSupplierByName() {
+		if(comboBox.getItemCount() == 0)
+			return;//相當於當全部移除item時，讓item的監聽器不再執行以下操作，否則會出現異常
+		SupplierInfo supplier = Dao.getSupplierByName(comboBox.getSelectedItem().toString()); 
+		fullnameField.setText(supplier.getFullname());
+		addressField.setText(supplier.getAddress());
+		contactField.setText(supplier.getContact());
+		telField.setText(supplier.getPhone());
+		bankField.setText(supplier.getBank());
+		emailField.setText(supplier.getEmail());
+		shortField.setText(supplier.getShortname());
+	}
+	public void updateSupplier() {
+		SupplierInfo supplier = new SupplierInfo();
+		supplier.setFullname(fullnameField.getText().trim());
+		supplier.setAddress(addressField.getText().trim());
+		supplier.setContact(contactField.getText().trim());
+		supplier.setPhone(telField.getText().trim());
+		supplier.setBank(bankField.getText().trim());
+		supplier.setEmail(emailField.getText().trim());
+		supplier.setShortname(shortField.getText().trim());
+		if(Dao.updateSupplier(supplier, comboBox.getSelectedItem().toString()) == 1){
+			JOptionPane.showMessageDialog(SupplierAlterPanel.this, "修改成功", null, JOptionPane.INFORMATION_MESSAGE);
+			initComboBox();
+		}else {
+			JOptionPane.showMessageDialog(SupplierAlterPanel.this, "修改失败", null, JOptionPane.INFORMATION_MESSAGE);
+		}
+	}
+	public void deleteSupplier() {
+		int confirm = JOptionPane.showConfirmDialog(this, "真的要删除吗？");
+		if(confirm == JOptionPane.YES_OPTION) {
+			if(Dao.deleteSupplier(comboBox.getSelectedItem().toString()) == 1) {
+				JOptionPane.showMessageDialog(this, "删除成功");
+			}
+			else
+				JOptionPane.showMessageDialog(this, "删除失败");
+			initComboBox();
+		}
+	}
 }
