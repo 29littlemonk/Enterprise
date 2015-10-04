@@ -1,11 +1,18 @@
 package com.wgc;
 
+import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,6 +24,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
 
 import com.wgc.iframe.ClientManage_IFrame;
 import com.wgc.iframe.JinHuoDan_IFrame;
@@ -505,11 +513,29 @@ public class MenuBar extends JMenuBar {
 			aboutItem.setText("¹ØÓÚ");
 			aboutItem.setIcon(new ImageIcon(this.getClass()
 					.getResource("/image/icon/guanyu.png")));
+			URL url = DesktopPanel.class.getResource("/image/about.jpg");
+			ImageIcon icon = new ImageIcon(url);
+			JLabel imageLabel = new JLabel(icon);			
+			imageLabel.setVisible(false);
+			desktopPanel.add(imageLabel);
+			desktopPanel.setLayer(imageLabel, Integer.MAX_VALUE);
 			aboutItem.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					// TODO Auto-generated method stub
+					int width = desktopPanel.getWidth();
+					int height = desktopPanel.getHeight();
+					imageLabel.setBounds((width-500)/2, (height-350)/2, 500, 350);
+					imageLabel.setVisible(true);
+				}
+			});
+			imageLabel.addMouseListener(new MouseAdapter() {
 
+				@Override
+				public void mouseClicked(MouseEvent arg0) {
+					// TODO Auto-generated method stub
+					super.mouseClicked(arg0);
+					imageLabel.setVisible(false);
 				}
 			});
 		}
@@ -526,7 +552,20 @@ public class MenuBar extends JMenuBar {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					// TODO Auto-generated method stub
-
+					if(Desktop.isDesktopSupported()) {
+						Desktop desktop = Desktop.getDesktop();
+						if(desktop.isSupported(Desktop.Action.MAIL)) {
+							try {
+								desktop.mail(new URI("mailto:814492370@qq.com"));
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (URISyntaxException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					}
 				}
 			});
 		}
@@ -543,7 +582,20 @@ public class MenuBar extends JMenuBar {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					// TODO Auto-generated method stub
-
+					if(Desktop.isDesktopSupported()) {
+						Desktop desktop = Desktop.getDesktop();
+						if(desktop.isSupported(Desktop.Action.BROWSE)) {
+							try {
+								desktop.browse(new URI("www.baidu.com"));
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (URISyntaxException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					}
 				}
 			});
 		}
