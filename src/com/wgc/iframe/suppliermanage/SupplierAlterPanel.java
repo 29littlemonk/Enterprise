@@ -271,10 +271,10 @@ public class SupplierAlterPanel extends JPanel {
 		supplier.setEmail(emailField.getText().trim());
 		supplier.setShortname(shortField.getText().trim());
 		if(Dao.updateSupplier(supplier, comboBox.getSelectedItem().toString()) == 1){
-			JOptionPane.showMessageDialog(SupplierAlterPanel.this, "修改成功", null, JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(SupplierAlterPanel.this, "修改成功", "消息", JOptionPane.INFORMATION_MESSAGE);
 			initComboBox();
 		}else {
-			JOptionPane.showMessageDialog(SupplierAlterPanel.this, "修改失败", null, JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(SupplierAlterPanel.this, "修改失败", "消息", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 	public void deleteSupplier() {

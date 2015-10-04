@@ -18,7 +18,10 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
+import com.wgc.iframe.ClientManage_IFrame;
 import com.wgc.iframe.JinHuoDan_IFrame;
+import com.wgc.iframe.JsrManage_IFrame;
+import com.wgc.iframe.ProductManage_IFrame;
 import com.wgc.iframe.SupplierManage_IFrame;
 import com.wgc.iframe.suppliermanage.SupplierAddPanel;
 
@@ -282,7 +285,7 @@ public class MenuBar extends JMenuBar {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					// TODO Auto-generated method stub
-
+					createJInternalFrame(productDataManagementItem, ProductManage_IFrame.class);
 				}
 			});
 		}
@@ -299,7 +302,7 @@ public class MenuBar extends JMenuBar {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					// TODO Auto-generated method stub
-
+					createJInternalFrame(customerDataManagementItem, ClientManage_IFrame.class);
 				}
 			});
 		}
@@ -333,7 +336,7 @@ public class MenuBar extends JMenuBar {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					// TODO Auto-generated method stub
-
+					createJInternalFrame(jingShourenSettingItem, JsrManage_IFrame.class);
 				}
 			});
 		}

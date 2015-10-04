@@ -1,30 +1,27 @@
-package com.wgc.iframe.suppliermanage;
+package com.wgc.iframe.clientmanage;
 
-import javax.swing.JPanel;
-
-import java.awt.GridBagLayout;
-
-import javax.swing.JLabel;
-
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import java.awt.Insets;
-
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.JButton;
-
-import com.wgc.dao.Dao;
-import com.wgc.dao.model.SupplierInfo;
-
-import java.awt.Font;
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class SupplierAddPanel extends JPanel {
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import com.wgc.dao.Dao;
+import com.wgc.dao.model.ClientInfo;
+import com.wgc.iframe.clientmanage.ClientAddPanel;
+
+public class ClientAddPanel extends JPanel {
 	private JTextField fullnameField;
 	private JTextField addressField;
 	private JTextField contactField;
@@ -36,14 +33,14 @@ public class SupplierAddPanel extends JPanel {
 	/**
 	 * Create the panel.
 	 */
-	public SupplierAddPanel() {
+	public ClientAddPanel() {
 		setForeground(Color.LIGHT_GRAY);
 		setBackground(Color.LIGHT_GRAY);
 		GridBagLayout gridBagLayout = new GridBagLayout();
 		//gridBagLayout.columnWeights = new double[]{1.0, 1.0, 1.0, 1.0};
 		setLayout(gridBagLayout);
 		
-		JLabel fullnameLabel = new JLabel("\u4F9B\u5E94\u5546\u5168\u79F0");
+		JLabel fullnameLabel = new JLabel("客户全称");
 		fullnameLabel.setFont(new Font("宋体", Font.PLAIN, 14));
 		GridBagConstraints gbc_fullnameLabel = new GridBagConstraints();
 		gbc_fullnameLabel.anchor = GridBagConstraints.EAST;
@@ -159,7 +156,7 @@ public class SupplierAddPanel extends JPanel {
 		gbc_emailField.gridy = 3;
 		add(emailField, gbc_emailField);
 		
-		JLabel shortLabel = new JLabel("\u4F9B\u5E94\u5546\u7B80\u79F0");
+		JLabel shortLabel = new JLabel("客户简称");
 		shortLabel.setFont(new Font("宋体", Font.PLAIN, 14));
 		GridBagConstraints gbc_shortLabel = new GridBagConstraints();
 		gbc_shortLabel.anchor = GridBagConstraints.EAST;
@@ -201,13 +198,13 @@ public class SupplierAddPanel extends JPanel {
 				// TODO Auto-generated method stub
 				if(fullnameField.getText().equals("") || addressField.getText().equals("") ||  contactField.getText().equals("") || telField.getText().equals("")
 						|| bankField.getText().equals("") || emailField.getText().equals("") || shortField.getText().equals("")) {
-					JOptionPane.showMessageDialog(SupplierAddPanel.this, "请填写全部信息",null,JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(ClientAddPanel.this, "请填写全部信息","警告",JOptionPane.WARNING_MESSAGE);
 					return;
 				}
-				ResultSet result = Dao.getResultSet("select * from tb_supplier where name = '" + fullnameField.getText().trim() +"' " );
+				ResultSet result = Dao.getResultSet("select * from tb_client where name = '" + fullnameField.getText().trim() +"' " );
 				try {
 					if(result.next()) {
-						JOptionPane.showMessageDialog(SupplierAddPanel.this, "此供应商已存在", null, JOptionPane.	WARNING_MESSAGE);
+						JOptionPane.showMessageDialog(ClientAddPanel.this, "此客户已存在", "警告", JOptionPane.	WARNING_MESSAGE);
 						return;
 					}
 				} catch (HeadlessException e) {
@@ -218,38 +215,38 @@ public class SupplierAddPanel extends JPanel {
 					e.printStackTrace();
 				}
 				String sid = null;
-				result = Dao.getResultSet("select max(id) from tb_client");//max可以的对字符串排序
+				result = Dao.getResultSet("select max(id) from tb_client ");//max可以的对字符串排序
 				
 				try {
 					//System.out.println(result.next());
 					if(result != null && result.next()) {
 						sid = result.getString(1);
 						if(sid == null) {
-							sid = "gys1001";
+							sid = "kh1001";
 						}else {
-							sid = "gys" + (Integer.parseInt(sid.substring(3)) + 1);
+							sid = "kh" + (Integer.parseInt(sid.substring(2)) + 1);
 						}
 					}
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				SupplierInfo supplier = new SupplierInfo();
-				supplier.setId(sid);
-				supplier.setFullname(fullnameField.getText().trim());
-				supplier.setAddress(addressField.getText().trim());
-				supplier.setContact(contactField.getText().trim());
-				supplier.setPhone(telField.getText().trim());
-				supplier.setBank(bankField.getText().trim());
-				supplier.setEmail(emailField.getText().trim());
-				supplier.setShortname(shortField.getText().trim());
+				ClientInfo client = new ClientInfo();
+				client.setId(sid);
+				client.setFullname(fullnameField.getText().trim());
+				client.setAddress(addressField.getText().trim());
+				client.setContact(contactField.getText().trim());
+				client.setPhone(telField.getText().trim());
+				client.setBank(bankField.getText().trim());
+				client.setEmail(emailField.getText().trim());
+				client.setShortname(shortField.getText().trim());
 				
-				if(Dao.addSupplier(supplier)) {
-					JOptionPane.showMessageDialog(SupplierAddPanel.this, "添加供应商成功", null, JOptionPane.INFORMATION_MESSAGE);
+				if(Dao.addClient(client)) {
+					JOptionPane.showMessageDialog(ClientAddPanel.this, "添加客户成功", "消息", JOptionPane.INFORMATION_MESSAGE);
 					resetButton.doClick();
 				}
 				else
-					JOptionPane.showMessageDialog(SupplierAddPanel.this, "添加供应商失败", null, JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(ClientAddPanel.this, "添加客户失败", "消息", JOptionPane.WARNING_MESSAGE);
 			}
 		});
 		resetButton.addActionListener(new ActionListener() {

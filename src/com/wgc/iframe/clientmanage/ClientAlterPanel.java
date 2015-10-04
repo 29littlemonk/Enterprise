@@ -1,30 +1,31 @@
-package com.wgc.iframe.suppliermanage;
+package com.wgc.iframe.clientmanage;
 
-import javax.swing.JPanel;
-
-import java.awt.GridBagLayout;
-
-import javax.swing.JLabel;
-
-import java.awt.GridBagConstraints;
-import java.awt.HeadlessException;
-import java.awt.Insets;
-
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.JButton;
-
-import com.wgc.dao.Dao;
-import com.wgc.dao.model.SupplierInfo;
-
-import java.awt.Font;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.Iterator;
+import java.util.List;
 
-public class SupplierAddPanel extends JPanel {
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import com.wgc.dao.Dao;
+import com.wgc.dao.model.ClientInfo;
+import com.wgc.dao.model.SupplierInfo;
+import com.wgc.iframe.suppliermanage.SupplierAlterPanel;
+
+public class ClientAlterPanel extends JPanel {
+
 	private JTextField fullnameField;
 	private JTextField addressField;
 	private JTextField contactField;
@@ -32,22 +33,22 @@ public class SupplierAddPanel extends JPanel {
 	private JTextField bankField;
 	private JTextField emailField;
 	private JTextField shortField;
+	private JComboBox comboBox;
 
 	/**
 	 * Create the panel.
 	 */
-	public SupplierAddPanel() {
+	public ClientAlterPanel() {
 		setForeground(Color.LIGHT_GRAY);
 		setBackground(Color.LIGHT_GRAY);
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		//gridBagLayout.columnWeights = new double[]{1.0, 1.0, 1.0, 1.0};
 		setLayout(gridBagLayout);
 		
-		JLabel fullnameLabel = new JLabel("\u4F9B\u5E94\u5546\u5168\u79F0");
+		JLabel fullnameLabel = new JLabel("客户全称");
 		fullnameLabel.setFont(new Font("宋体", Font.PLAIN, 14));
 		GridBagConstraints gbc_fullnameLabel = new GridBagConstraints();
 		gbc_fullnameLabel.anchor = GridBagConstraints.EAST;
-		gbc_fullnameLabel.insets = new Insets(5, 5, 5, 5);
+		gbc_fullnameLabel.insets = new Insets(0, 5, 5, 5);
 		gbc_fullnameLabel.gridx = 0;
 		gbc_fullnameLabel.gridy = 0;
 		gbc_fullnameLabel.gridwidth = 1;
@@ -58,7 +59,7 @@ public class SupplierAddPanel extends JPanel {
 		fullnameField.setFont(new Font("宋体", Font.PLAIN, 14));
 		GridBagConstraints gbc_fullnameField = new GridBagConstraints();
 		gbc_fullnameField.gridwidth = 3;
-		gbc_fullnameField.insets = new Insets(5, 5, 5, 5);
+		gbc_fullnameField.insets = new Insets(0, 5, 5, 5);
 		gbc_fullnameField.fill = GridBagConstraints.BOTH;
 		gbc_fullnameField.gridx = 1;
 		gbc_fullnameField.gridy = 0;
@@ -159,13 +160,32 @@ public class SupplierAddPanel extends JPanel {
 		gbc_emailField.gridy = 3;
 		add(emailField, gbc_emailField);
 		
-		JLabel shortLabel = new JLabel("\u4F9B\u5E94\u5546\u7B80\u79F0");
+		JLabel supplierLabel = new JLabel("请选择客户");
+		supplierLabel.setFont(new Font("宋体", Font.PLAIN, 14));
+		GridBagConstraints gbc_supplierLabel = new GridBagConstraints();
+		gbc_supplierLabel.anchor = GridBagConstraints.EAST;
+		gbc_supplierLabel.insets = new Insets(5, 5, 5, 5);
+		gbc_supplierLabel.gridx = 0;
+		gbc_supplierLabel.gridy = 4;
+		add(supplierLabel, gbc_supplierLabel);
+		
+		comboBox = new JComboBox();
+		comboBox.setFont(new Font("宋体", Font.PLAIN, 14));
+		GridBagConstraints gbc_comboBox = new GridBagConstraints();
+		gbc_comboBox.gridwidth = 3;
+		gbc_comboBox.insets = new Insets(5, 5, 5, 5);
+		gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBox.gridx = 1;
+		gbc_comboBox.gridy = 4;
+		add(comboBox, gbc_comboBox);
+		
+		JLabel shortLabel = new JLabel("客户简称");
 		shortLabel.setFont(new Font("宋体", Font.PLAIN, 14));
 		GridBagConstraints gbc_shortLabel = new GridBagConstraints();
 		gbc_shortLabel.anchor = GridBagConstraints.EAST;
 		gbc_shortLabel.insets = new Insets(5, 5, 5, 5);
 		gbc_shortLabel.gridx = 0;
-		gbc_shortLabel.gridy = 4;
+		gbc_shortLabel.gridy = 5;
 		add(shortLabel, gbc_shortLabel);
 		
 		shortField = new JTextField();
@@ -174,98 +194,100 @@ public class SupplierAddPanel extends JPanel {
 		gbc_shortField.insets = new Insets(5, 5, 5, 5);
 		gbc_shortField.fill = GridBagConstraints.HORIZONTAL;
 		gbc_shortField.gridx = 1;
-		gbc_shortField.gridy = 4;
+		gbc_shortField.gridy = 5;
 		add(shortField, gbc_shortField);
 		
-		JButton addButton = new JButton("\u6DFB\u52A0");
-		addButton.setFont(new Font("宋体", Font.PLAIN, 14));
-		GridBagConstraints gbc_addButton = new GridBagConstraints();
-		gbc_addButton.insets = new Insets(5, 5, 5, 5);
-		gbc_addButton.gridx = 2;
-		gbc_addButton.gridy = 4;
-		add(addButton, gbc_addButton);
+		JButton alterButton = new JButton("\u4FEE\u6539");
+		alterButton.setFont(new Font("宋体", Font.PLAIN, 14));
+		GridBagConstraints gbc_alterButton = new GridBagConstraints();
+		gbc_alterButton.insets = new Insets(5, 5, 5, 5);
+		gbc_alterButton.gridx = 2;
+		gbc_alterButton.gridy = 5;
+		add(alterButton, gbc_alterButton);
 		
-		JButton resetButton = new JButton("\u91CD\u7F6E");
-		resetButton.setFont(new Font("宋体", Font.PLAIN, 14));
-		GridBagConstraints gbc_resetButton = new GridBagConstraints();
-		gbc_resetButton.insets = new Insets(5, 5, 5, 5);
-		gbc_resetButton.gridx = 3;
-		gbc_resetButton.gridy = 4;
-		add(resetButton, gbc_resetButton);
+		JButton deleteButton = new JButton("\u5220\u9664");
+		deleteButton.setFont(new Font("宋体", Font.PLAIN, 14));
+		GridBagConstraints gbc_deleteButton = new GridBagConstraints();
+		gbc_deleteButton.insets = new Insets(5, 5, 5, 5);
+		gbc_deleteButton.gridx = 3;
+		gbc_deleteButton.gridy = 5;
+		add(deleteButton, gbc_deleteButton);		
 		
 		
-		addButton.addActionListener(new ActionListener() {
+		initComboBox();
+		comboBox.addItemListener(new ItemListener() {
 			
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void itemStateChanged(ItemEvent arg0) {
 				// TODO Auto-generated method stub
-				if(fullnameField.getText().equals("") || addressField.getText().equals("") ||  contactField.getText().equals("") || telField.getText().equals("")
-						|| bankField.getText().equals("") || emailField.getText().equals("") || shortField.getText().equals("")) {
-					JOptionPane.showMessageDialog(SupplierAddPanel.this, "请填写全部信息",null,JOptionPane.WARNING_MESSAGE);
-					return;
-				}
-				ResultSet result = Dao.getResultSet("select * from tb_supplier where name = '" + fullnameField.getText().trim() +"' " );
-				try {
-					if(result.next()) {
-						JOptionPane.showMessageDialog(SupplierAddPanel.this, "此供应商已存在", null, JOptionPane.	WARNING_MESSAGE);
-						return;
-					}
-				} catch (HeadlessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				String sid = null;
-				result = Dao.getResultSet("select max(id) from tb_client");//max可以的对字符串排序
-				
-				try {
-					//System.out.println(result.next());
-					if(result != null && result.next()) {
-						sid = result.getString(1);
-						if(sid == null) {
-							sid = "gys1001";
-						}else {
-							sid = "gys" + (Integer.parseInt(sid.substring(3)) + 1);
-						}
-					}
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				SupplierInfo supplier = new SupplierInfo();
-				supplier.setId(sid);
-				supplier.setFullname(fullnameField.getText().trim());
-				supplier.setAddress(addressField.getText().trim());
-				supplier.setContact(contactField.getText().trim());
-				supplier.setPhone(telField.getText().trim());
-				supplier.setBank(bankField.getText().trim());
-				supplier.setEmail(emailField.getText().trim());
-				supplier.setShortname(shortField.getText().trim());
-				
-				if(Dao.addSupplier(supplier)) {
-					JOptionPane.showMessageDialog(SupplierAddPanel.this, "添加供应商成功", null, JOptionPane.INFORMATION_MESSAGE);
-					resetButton.doClick();
-				}
-				else
-					JOptionPane.showMessageDialog(SupplierAddPanel.this, "添加供应商失败", null, JOptionPane.WARNING_MESSAGE);
+				setClientByName();
 			}
 		});
-		resetButton.addActionListener(new ActionListener() {
+		//setSupplierByName();//要放在各個field後面，否則field沒初始化，無法為field設置text。
+		alterButton.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				fullnameField.setText("");
-				addressField.setText("");
-				contactField.setText("");
-				telField.setText("");
-				bankField.setText("");
-				emailField.setText("");
-				shortField.setText("");
+				updateClient();
 			}
 		});
+		deleteButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				deleteClient();
+			}
+		});
+	}
+	public void initComboBox() {
+		comboBox.removeAllItems();
+		List<String> clientName = Dao.getClientName();
+		Iterator<String> ite = clientName.iterator();
+		while(ite.hasNext()) {
+			comboBox.addItem(ite.next());
+		}
+		setClientByName();
+	}
+	public void setClientByName() {
+		if(comboBox.getItemCount() == 0)
+			return;//相當於當全部移除item時，讓item的監聽器不再執行以下操作，否則會出現異常
+		ClientInfo client = Dao.getClientByName(comboBox.getSelectedItem().toString()); 
+		fullnameField.setText(client.getFullname());
+		addressField.setText(client.getAddress());
+		contactField.setText(client.getContact());
+		telField.setText(client.getPhone());
+		bankField.setText(client.getBank());
+		emailField.setText(client.getEmail());
+		shortField.setText(client.getShortname());
+	}
+	public void updateClient() {
+		ClientInfo client = new ClientInfo();
+		client.setFullname(fullnameField.getText().trim());
+		client.setAddress(addressField.getText().trim());
+		client.setContact(contactField.getText().trim());
+		client.setPhone(telField.getText().trim());
+		client.setBank(bankField.getText().trim());
+		client.setEmail(emailField.getText().trim());
+		client.setShortname(shortField.getText().trim());
+		if(Dao.updateClient(client, comboBox.getSelectedItem().toString()) == 1){
+			JOptionPane.showMessageDialog(ClientAlterPanel.this, "修改成功", "消息", JOptionPane.INFORMATION_MESSAGE);
+			initComboBox();
+		}else {
+			JOptionPane.showMessageDialog(ClientAlterPanel.this, "修改失败", "消息", JOptionPane.INFORMATION_MESSAGE);
+		}
+	}
+	public void deleteClient() {
+		int confirm = JOptionPane.showConfirmDialog(this, "真的要删除吗？");
+		if(confirm == JOptionPane.YES_OPTION) {
+			if(Dao.deleteClient(comboBox.getSelectedItem().toString()) == 1) {
+				JOptionPane.showMessageDialog(this, "删除成功");
+			}
+			else
+				JOptionPane.showMessageDialog(this, "删除失败");
+			initComboBox();
+		}
 	}
 
 }
