@@ -63,6 +63,7 @@ public class LoginDialog extends JFrame {
 				if(Dao.checkLogin(LoginDialog.this, tfUsername.getText(), new String(pfPassword.getPassword()))){
 					mainFrame  = new MainFrame();
 					mainFrame.setVisible(true);
+					MainFrame.getUserLabel().setText(tfUsername.getText());
 					setVisible(false);
 				}
 				//System.out.println(pfPassword.getPassword().toString());

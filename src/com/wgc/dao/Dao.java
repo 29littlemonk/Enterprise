@@ -488,6 +488,37 @@ public class Dao {
 		return result;
 	}
 
+	public static int updatePassword(String username, String password) {
+		int flag = 0;
+		String sql = "update tb_userlist set pass = '" + password
+				+ "'where name='" + username + "' ";
+		try {
+			Statement stat = conn.createStatement();
+			flag = stat.executeUpdate(sql);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return flag;
+	}
+
+	public static boolean checkOriginalPassword(String username, String password) {
+		String sql = "select pass from tb_userlist where name='" + username
+				+ "' ";
+		ResultSet result = getResultSet(sql);
+		try {
+			if (result.next()) {
+				if (result.getString(1).equals(password)) {
+					return true;
+				}
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+
 	public static boolean checkLogin(Component parentComponent,
 			String username, String password) {
 		ResultSet result = null;

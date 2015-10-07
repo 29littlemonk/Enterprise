@@ -14,7 +14,7 @@ public class MainFrame extends JFrame{
 	private JPanel frameContentPanel = null;
 	private ToolBar toolBar = null;
 	private JLabel stateLabel = null;
-	private JLabel userLabel = null;
+	private static JLabel userLabel = null;
 	private JLabel dateLabel = null;
 	private JLabel companyLabel = null;
 	private JPanel statePanel = null;
@@ -120,7 +120,7 @@ public class MainFrame extends JFrame{
 		js.setOrientation(JSeparator.VERTICAL);
 		return js;
 	}
-	public JLabel getUserLabel(){
+	public static JLabel getUserLabel(){
 		if(userLabel == null) {
 			userLabel = new JLabel("root");
 		}

@@ -24,11 +24,15 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.InternalFrameListener;
 import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
 
 import com.wgc.iframe.ClientManage_IFrame;
 import com.wgc.iframe.JinHuoDan_IFrame;
 import com.wgc.iframe.JsrManage_IFrame;
+import com.wgc.iframe.ModifyPassword_IFrame;
 import com.wgc.iframe.ProductManage_IFrame;
 import com.wgc.iframe.SupplierManage_IFrame;
 import com.wgc.iframe.suppliermanage.SupplierAddPanel;
@@ -65,6 +69,7 @@ public class MenuBar extends JMenuBar {
 	private JMenuItem aboutItem = null;
 	private JMenuItem contactTechSupportItem = null;
 	private JMenuItem visitTechWebsiteItem = null;
+	private static int count = 0;//用于控制内部窗体的显示层次
 	
 	private JDesktopPane desktopPanel = null;
 	private JLabel stateLabel = null;
@@ -373,7 +378,7 @@ public class MenuBar extends JMenuBar {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					// TODO Auto-generated method stub
-
+					
 				}
 			});
 		}
@@ -390,7 +395,7 @@ public class MenuBar extends JMenuBar {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					// TODO Auto-generated method stub
-
+					createJInternalFrame(passwordModificationItem, ModifyPassword_IFrame.class);
 				}
 			});
 		}
@@ -407,7 +412,7 @@ public class MenuBar extends JMenuBar {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					// TODO Auto-generated method stub
-
+					System.exit(0);
 				}
 			});
 		}
@@ -454,7 +459,10 @@ public class MenuBar extends JMenuBar {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					// TODO Auto-generated method stub
-
+					JInternalFrame[] frames = desktopPanel.getAllFrames();
+					for(JInternalFrame frame:frames) {
+						frame.doDefaultCloseAction();
+					}
 				}
 			});
 		}
@@ -471,7 +479,15 @@ public class MenuBar extends JMenuBar {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					// TODO Auto-generated method stub
-
+					JInternalFrame[] frames = desktopPanel.getAllFrames();
+					for(JInternalFrame frame:frames) {
+						try {
+							frame.setIcon(true);
+						} catch (PropertyVetoException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						};
+					}
 				}
 			});
 		}
@@ -487,7 +503,15 @@ public class MenuBar extends JMenuBar {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					// TODO Auto-generated method stub
-
+					JInternalFrame[] frames = desktopPanel.getAllFrames();
+					for(JInternalFrame frame:frames) {
+						try {
+							frame.setIcon(false);
+						} catch (PropertyVetoException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						};
+					}
 				}
 			});
 		}
@@ -616,6 +640,7 @@ public class MenuBar extends JMenuBar {
 	public JInternalFrame createJInternalFrame(JMenuItem item, Class cla) {
 		Constructor cons = cla.getConstructors()[0];
 		JInternalFrame iFrame = iFrames.get(item);
+		count++;
 		if(iFrame == null || iFrame.isClosed()) {
 			try {
 				iFrame = (JInternalFrame) cons.newInstance(new Object[] {});
@@ -623,10 +648,10 @@ public class MenuBar extends JMenuBar {
 				iFrame.setTitle(item.getText());
 				iFrame.setLocation(iFrameX, iFrameY);
 				iFrame.setFrameIcon(item.getIcon());
-				iFrame.setVisible(true);
 				iFrame.setSelected(true);
-				stateLabel.setText(iFrame.getTitle());
+				iFrame.setVisible(true);
 				desktopPanel.add(iFrame);
+				
 			} catch (InstantiationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -644,6 +669,25 @@ public class MenuBar extends JMenuBar {
 				e.printStackTrace();
 			}
 		}
+		
+		stateLabel.setText(iFrame.getTitle());
+		iFrame.addInternalFrameListener(new InternalFrameAdapter() {
+
+			@Override
+			public void internalFrameDeactivated(InternalFrameEvent e) {
+				// TODO Auto-generated method stub
+				super.internalFrameDeactivated(e);
+				stateLabel.setText("当前没有选择窗体");
+			}
+
+			@Override
+			public void internalFrameActivated(InternalFrameEvent e) {
+				// TODO Auto-generated method stub
+				super.internalFrameActivated(e);
+				stateLabel.setText(e.getInternalFrame().getTitle());
+			}
+		});
+		iFrame.setLayer(count);
 		return iFrame;
 	}
 	public MenuBar(JDesktopPane desktopPanel, JLabel stateLabel) {
