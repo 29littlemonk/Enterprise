@@ -6,16 +6,16 @@ import java.io.ObjectInputStream.GetField;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Date;
+import java.util.Set;
 
 import javax.swing.JOptionPane;
 
-import com.wgc.dao.model.ClientInfo;
-import com.wgc.dao.model.JsrInfo;
-import com.wgc.dao.model.ProductInfo;
-import com.wgc.dao.model.SupplierInfo;
+import com.wgc.dao.model.*;
 
 public class Dao {
 	private static String dbDriverName = "com.mysql.jdbc.Driver";
@@ -126,6 +126,19 @@ public class Dao {
 		return supplierName;
 	}
 
+	public static String getContact(String supplierName) {
+		String contact = "";
+		ResultSet result = getResultSet("select contact from tb_supplier where name = '"+supplierName+"' ");
+		try {
+			while(result.next()) {
+				contact = result.getString(1);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return contact;
+	}
 	/*
 	 * public static Map<String,String> getSupplierByName(String name) {
 	 * Map<String, String> map = new HashMap<String, String>(); ResultSet result
@@ -251,7 +264,20 @@ public class Dao {
 		}
 		return productName;
 	}
-
+	
+	public static List<String> getProductNameBySupplierName(String supplierName) {
+		ResultSet result = getResultSet("select fullname from tb_productInfo where supplier ='"+supplierName+"'");
+		List<String> productName = new ArrayList<String>();
+		try {
+			while (result.next()) {
+				productName.add(result.getString(1));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return productName;
+	}
 	/*
 	 * public static Map<String,String> getSupplierByName(String name) {
 	 * Map<String, String> map = new HashMap<String, String>(); ResultSet result
@@ -269,6 +295,32 @@ public class Dao {
 				+ name + "' ");
 		try {
 			while (result.next()) {
+				product.setId(result.getString("id"));
+				product.setFullname(result.getString("fullname"));
+				product.setApproval(result.getString("approval"));
+				product.setLotnumber(result.getString("lotnumber"));
+				product.setMemo(result.getString("memo"));
+				product.setOriginplace(result.getString("originplace"));
+				product.setPac(result.getString("package"));
+				product.setShortname(result.getString("shortname"));
+				product.setStandard(result.getString("standard"));
+				product.setSupplier(result.getString("supplier"));
+				product.setUnit(result.getString("unit"));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return product;
+	}
+	
+	public static ProductInfo getProductById(String id) {
+		ProductInfo product = new ProductInfo();
+		ResultSet result = getResultSet("select * from tb_productInfo where id = '"
+				+ id + "' ");
+		try {
+			while (result.next()) {
+				product.setId(result.getString("id"));
 				product.setFullname(result.getString("fullname"));
 				product.setApproval(result.getString("approval"));
 				product.setLotnumber(result.getString("lotnumber"));
@@ -475,7 +527,102 @@ public class Dao {
 		}
 		return flag;
 	}
-
+	//获得经手人
+	public static List<String> getJsrName() {
+		ResultSet result = getResultSet("select name from tb_jsr where enable = 1");
+		List<String> jsrName = new ArrayList<String>();
+		try {
+			while (result.next()) {
+				jsrName.add(result.getString(1));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return jsrName;
+	}
+	
+	public static String getRukuMainMaxId() {
+		String max = "";
+		String baseId = "";
+		ResultSet result = getResultSet("select max(id) from tb_ruku_main");
+		try {
+			if(result.next()) {
+				max = result.getString(1);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		baseId = max == null ? "000" : max.substring(max.length()-3);
+		max = "RK";
+		Date date = new Date();
+		max += String.format("%tF", date).replace("-","");
+		max += String.format("%03d", Integer.parseInt(baseId) + 1);
+		return max;
+	}
+	
+	public static boolean Ruku(RukuMainInfo rukumain) {
+		String sql = "insert into tb_ruku_main values(?,?,?,?,?,?,?,?,?)";
+		try {
+			boolean autoCommit = conn.getAutoCommit();
+			conn.setAutoCommit(false);
+			PreparedStatement pstat = conn.prepareStatement(sql);
+			pstat.setString(1, rukumain.getId());
+			pstat.setInt(2, rukumain.getProductnum());
+			pstat.setDouble(3, rukumain.getSummoney());
+			pstat.setString(4, rukumain.getConclusion());
+			pstat.setString(5, rukumain.getSuppliername());
+			pstat.setDate(6,new java.sql.Date(rukumain.getDate().getTime()));
+			pstat.setString(7, rukumain.getOperator());
+			pstat.setString(8, rukumain.getJsr());
+			pstat.setString(9, rukumain.getPayment());
+			if(pstat.executeUpdate() == 0)
+				return false;
+			Set<RuKuDetailInfo> set = rukumain.getDetail();
+			Iterator ite = set.iterator();
+			while(ite.hasNext()) {
+				RuKuDetailInfo detail = new RuKuDetailInfo();
+				detail = (RuKuDetailInfo)ite.next();
+				sql = "insert into tb_ruku_detail(rkID,productID,price,count) values(?,?,?,?)";
+				pstat = conn.prepareStatement(sql);
+				pstat.setString(1, detail.getRkID());
+				pstat.setString(2, detail.getProductID());
+				pstat.setDouble(3, detail.getPrice());
+				pstat.setInt(4, detail.getCount());
+				if(pstat.executeUpdate() == 0)
+					return false;
+				sql = "select * from tb_kucun where productID = '"+detail.getProductID()+"' ";
+				Statement stat = conn.createStatement();
+				ResultSet result = getResultSet(sql);
+				if(result.next()) {
+					sql = "update tb_kucun set count = count + '"+detail.getCount()+"' where productID = '"+detail.getProductID()+"'";
+					if(stat.executeUpdate(sql) == 0)
+						return false;	
+				}
+				else {
+					ProductInfo product = getProductById(detail.getProductID());
+					sql = "insert into tb_kucun(productID,productName,productUnit,count,originalPlace) values(?,?,?,?,?)";
+					pstat = conn.prepareStatement(sql);
+					pstat.setString(1, detail.getProductID());
+					pstat.setString(2, product.getFullname());
+					pstat.setString(3, product.getUnit());
+					pstat.setInt(4, detail.getCount());
+					pstat.setString(5, product.getOriginplace());
+					if(pstat.executeUpdate() == 0)
+						return false;
+				}
+			}
+			conn.commit();
+			conn.setAutoCommit(autoCommit);
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
 	public static ResultSet getResultSet(String sql) {
 		ResultSet result = null;
 		try {
